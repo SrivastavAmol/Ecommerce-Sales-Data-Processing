@@ -3,8 +3,14 @@ import os
 import yaml
 from tempfile import NamedTemporaryFile
 import pytest
-import sys
-src_path = "/Workspace/Repos/srivastav_amol@yahoo.com/Ecommerce-Sales-Data-Processing/"
+
+src_path = os.path.abspath(
+    os.path.join(
+        os.getcwd(),
+        '..',
+        '..'
+    )
+)
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 from src.config import read_config

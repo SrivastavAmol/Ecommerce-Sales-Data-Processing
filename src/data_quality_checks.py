@@ -16,8 +16,11 @@ def data_quality_checks(file_path_customers, file_path_products, file_path_order
     missing_customers = list(null_columns_customers[null_columns_customers].index) if file_exists_customers and not missing_columns_customers else required_columns_customers
     if file_exists_customers and not missing_columns_customers and null_columns_customers.any():
         warnings.warn(f"Null values found in columns: {missing_customers}.")
-    pdf["phone"] = pdf["phone"].astype(str) if "phone" in pdf.columns else pdf
+    # Only coerce phone to str when the column exists.
+    if "phone" in pdf.columns:
+        pdf["phone"] = pdf["phone"].astype(str)
     phone_nulls = pdf["phone"].isnull().any() if "phone" in pdf.columns else False
+    # ...existing code...
     customer_ids_with_missing_values = pdf.loc[pdf[required_columns_customers].isnull().any(axis=1), "Customer ID"].dropna().unique().tolist() if file_exists_customers and not missing_columns_customers else []
 
     # Products

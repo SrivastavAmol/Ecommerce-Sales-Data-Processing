@@ -1,0 +1,12 @@
+pandas
+pyyaml
+openpyxl
+xlrd
+pytest
+notebook
+ipykernel
+pyspark
+pytest-mock
+pytest-cov
+pytest-html
+pytest-xdist
