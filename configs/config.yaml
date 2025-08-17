@@ -1,0 +1,16 @@
+
+file_paths:
+  customers: "/Volumes/amol_uc/default/mydata/Customer.xlsx"
+  products: "/Volumes/amol_uc/default/mydata/Products.csv"
+  orders: "/Volumes/amol_uc/default/mydata/Orders.json"
+
+tables_name:
+  raw_tables:
+    raw_customers: amol_uc.default.raw_customers
+    raw_products: amol_uc.default.raw_products
+    raw_orders: amol_uc.default.raw_orders
+  enriched_tables:
+    enriched_customers: amol_uc.default.enriched_customers
+    enriched_products: amol_uc.default.enriched_products
+    enriched_orders: amol_uc.default.enriched_orders
+    profit_agg_by_year_category_subcat_customer: amol_uc.default.profit_agg_by_year_category_subcat_customer
