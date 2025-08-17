@@ -78,6 +78,7 @@ Run all tests using pytest:
 ```bash
 pytest pytest/tests/
 ```
+run notebook /Ecommerce-Sales-Data-Processing/pytest/pytest_run.py
 
 Or use the test runner notebook:
 
