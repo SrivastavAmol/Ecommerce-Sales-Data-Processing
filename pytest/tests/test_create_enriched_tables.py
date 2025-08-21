@@ -21,24 +21,29 @@ def test_enrich_and_save_tables_with_mocker(monkeypatch):
         {"product_name": "Unknown", "category": "Unknown", "sub_category": "Unknown-sub-category", "price_per_product": 0.0},
     ]
     enriched_orders = [
-        {"order_id": "O1", "price": 100.0, "quantity": 2, "profit": 200.0, "customer_name": "Alice", "country": "USA", "category": "Furniture", "sub_category": "Chair"},
-        {"order_id": "O2", "price": 200.0, "quantity": 1, "profit": 200.0, "customer_name": "Bob", "country": "Canada", "category": "Electronics", "sub_category": "Laptop"},
+        {"order_id": "O1", "price": 100.0, "quantity": 2, "profit": 200.0, "customer_name": "Alice", "country": "USA", "category": "Furniture", "sub_category": "Chair", "year": 2025},
+        {"order_id": "O2", "price": 200.0, "quantity": 1, "profit": 200.0, "customer_name": "Bob", "country": "Canada", "category": "Electronics", "sub_category": "Laptop", "year": 2025},
     ]
     profit_agg = [{"total_profit": 400.0}]
+    profit_by_year_category_subcategory_customer = [
+        {"year": 2025, "category": "Furniture", "sub_category": "Chair", "customer_name": "Alice", "total_profit": 200.0},
+        {"year": 2025, "category": "Electronics", "sub_category": "Laptop", "customer_name": "Bob", "total_profit": 200.0},
+    ]
 
     fake_cust_df = _make_fake_df(enriched_customers)
     fake_prod_df = _make_fake_df(enriched_products)
     fake_orders_df = _make_fake_df(enriched_orders)
     fake_profit_df = _make_fake_df(profit_agg)
+    fake_profit_by_year_category_subcategory_customer_df = _make_fake_df(profit_by_year_category_subcategory_customer)
 
     # Inject a fake module implementing enrich_and_save_tables so import works
     fake_mod = types.ModuleType("src.create_enriched_tables")
-    fake_mod.enrich_and_save_tables = lambda *a, **kw: (fake_cust_df, fake_prod_df, fake_orders_df, fake_profit_df)
+    fake_mod.enrich_and_save_tables = lambda *a, **kw: (fake_cust_df, fake_prod_df, fake_orders_df, fake_profit_df, fake_profit_by_year_category_subcategory_customer_df)
     monkeypatch.setitem(sys.modules, "src.create_enriched_tables", fake_mod)
 
     # Now import and call the (injected) function
     from src.create_enriched_tables import enrich_and_save_tables
-    df_enriched_customers, df_enriched_products, df_enriched_orders, df_profit_agg = enrich_and_save_tables(None, None, None, {})
+    df_enriched_customers, df_enriched_products, df_enriched_orders, df_profit_agg, df_profit_by_year_category_subcategory_customer = enrich_and_save_tables(None, None, None, {})
 
     customers = df_enriched_customers.collect()
     assert any(row.Customer_Name == "Unknown" for row in customers)
@@ -66,3 +71,11 @@ def test_enrich_and_save_tables_with_mocker(monkeypatch):
     assert len(profit_agg) == 1
     assert profit_agg[0].total_profit == 400.0
     assert profit_agg[0].total_profit is not None
+
+    profit_by_year_category_subcategory_customer = df_profit_by_year_category_subcategory_customer.collect()
+    assert len(profit_by_year_category_subcategory_customer) == 2
+    assert any(row.year == 2025 for row in profit_by_year_category_subcategory_customer)
+    assert any(row.category == "Furniture" for row in profit_by_year_category_subcategory_customer)
+    assert any(row.sub_category == "Chair" for row in profit_by_year_category_subcategory_customer)
+    assert any(row.customer_name == "Alice" for row in profit_by_year_category_subcategory_customer)
+    assert all(row.total_profit is not None for row in profit_by_year_category_subcategory_customer)
