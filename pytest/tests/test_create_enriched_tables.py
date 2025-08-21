@@ -21,8 +21,8 @@ def test_enrich_and_save_tables_with_mocker(monkeypatch):
         {"product_name": "Unknown", "category": "Unknown", "sub_category": "Unknown-sub-category", "price_per_product": 0.0},
     ]
     enriched_orders = [
-        {"order_id": "O1", "price": 100.0, "quantity": 2, "profit": 200.0},
-        {"order_id": "O2", "price": 200.0, "quantity": 1, "profit": 200.0},
+        {"order_id": "O1", "price": 100.0, "quantity": 2, "profit": 200.0, "customer_name": "Alice", "country": "USA", "category": "Furniture", "sub_category": "Chair"},
+        {"order_id": "O2", "price": 200.0, "quantity": 1, "profit": 200.0, "customer_name": "Bob", "country": "Canada", "category": "Electronics", "sub_category": "Laptop"},
     ]
     profit_agg = [{"total_profit": 400.0}]
 
@@ -56,6 +56,11 @@ def test_enrich_and_save_tables_with_mocker(monkeypatch):
     assert all(row.price is not None for row in orders)
     assert all(row.quantity is not None for row in orders)
     assert all(row.profit is not None for row in orders)
+    assert all(round(row.profit, 2) == row.profit for row in orders)  # Test for profit rounded to 2 decimal places
+    assert any(row.customer_name == "Alice" for row in orders)
+    assert any(row.country == "USA" for row in orders)
+    assert any(row.category == "Furniture" for row in orders)  # Test for product category
+    assert any(row.sub_category == "Chair" for row in orders)  # Test for product sub-category
 
     profit_agg = df_profit_agg.collect()
     assert len(profit_agg) == 1
